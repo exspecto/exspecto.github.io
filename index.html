@@ -1,10 +1,110 @@
-<html>
-  <head><title>test mp3</title></head>
-  <body>
-    <h3>this should play in the browser</h3>
-<audio src="https://drive.google.com/file/d/1YnOnH-YHwBmM8BhFG7QVB2frU1lQdKlc/view" type="audio/mp3" controls autoplay></audio>
-    
-    if that doesn't work, try this one:
-    <iframe src="https://drive.google.com/file/d/1YnOnH-YHwBmM8BhFG7QVB2frU1lQdKlc/preview" width="640" height="480"></iframe>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resizable Numbers</title>
+<style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+
+	#container {
+		display: grid;
+		grid-gap: 1px;
+		max-width: 100vw; /* Maximum width */
+		margin: 0 auto; /* Center the container */
+	}
+
+	#drawn {
+		max-width: 100vw; /* Maximum width */
+		//max-height: 100vh;
+		margin: 0 auto;
+		border: 1px solid black;
+		overflow: scroll;
+		scroll: auto;
+	}
+
+	.number {
+		font-family: sans-serif;
+		font-weight: bold;
+		display: flex;
+		align-items: center; /* Vertically align the number */
+		justify-content: center;
+		box-sizing: border-box;
+		background-color: blue;
+		color: white;
+		cursor: pointer;
+		width: 100%; /* Ensure the number takes full width of the grid cell */
+		height: 100%; /* Ensure the number takes full height of the grid cell */
+	}
+</style>
+</head>
+<body>
+<div style="height: 70vh">
+	<div id="container"></div>
+</div>	
+<div style="height: 30vh">
+	<div id="drawn">Tickets drawn:</div>
+</div>
+<script>
+window.onload = function() {
+    const container = document.getElementById("container");
+	const drawn = document.getElementById("drawn");
+	const numbers = [];
+
+    // Create 200 numbered elements
+    for (let i = 1; i <= 200; i++) {
+        const number = document.createElement("div");
+        number.className = "number";
+        number.innerHTML = '<br />' + i + '<br />';
+		//number.innerText = i;
+        numbers.push(number);
+        container.appendChild(number);
+    }
+
+    // Calculate number of rows and columns
+    const numRows = Math.ceil(Math.sqrt(numbers.length));
+    const numColumns = Math.ceil(numbers.length / numRows);
+	
+	const clicker = function() {
+		this.style.backgroundColor = 'DimGray';
+		this.innerHTML = '<s>' + this.innerHTML + '</s>';
+		
+		if (drawn.innerHTML == "Tickets drawn:") {
+			drawn.innerHTML += this.innerText;	
+		} else {
+			drawn.innerHTML += ', ' + this.innerText;	
+		}
+
+		this.removeEventListener("click", clicker);
+		this.addEventListener("click", unclicker);
+		
+	};
+	
+	const unclicker = function() {
+		this.style.backgroundColor = 'Blue';
+		this.innerHTML = this.innerHTML.replace('<s>', '').replace('</s>', '');		
+		
+		drawn.innerHTML += ', <s>' + this.innerText + '</s>';
+		this.addEventListener("click", clicker);
+		this.removeEventListener("click", unclicker);		
+	};
+
+    // Set initial grid styles
+    container.style.gridTemplateColumns = `repeat(${numColumns}, 1fr)`;
+    container.style.gridTemplateRows = `repeat(${numRows}, 1fr)`;
+
+    // Event listener for each number
+    numbers.forEach(number => {
+        number.addEventListener("click", clicker);
+    });
+
+};
+</script>
+</body>
 </html>
