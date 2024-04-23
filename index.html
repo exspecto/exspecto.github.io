@@ -11,6 +11,10 @@
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
+		background-color: black;
+		font-family: sans-serif;
+		font-weight: bold;
+		color: white;	
 	}
 
 	#container {
@@ -23,16 +27,16 @@
 	#drawn {
 		width: 100vw;
 		height: 15vh;
-		border: 1px solid black;
 		overflow: scroll;
 		scroll: auto;
+		color: green;
 	}
 
-	.number {
-		font-family: sans-serif;
-		font-weight: bold;
+	.number {		
 		display: flex;
 		justify-content: center;
+		justify-items: center;
+		align-items: center;
 		box-sizing: border-box;
 		background-color: blue;
 		color: white;
@@ -57,7 +61,7 @@ window.onload = function() {
     for (let i = 1; i <= tickets; i++) {
         const number = document.createElement("div");
         number.className = "number";
-        number.innerHTML = '<br />' + i;		
+        number.innerHTML = i;		
 		numbers.push(number);
         container.appendChild(number);
     }
@@ -88,7 +92,7 @@ window.onload = function() {
 		this.style.backgroundColor = 'Blue';
 		this.innerHTML = this.innerHTML.replace('<s>', '').replace('</s>', '');		
 		
-		drawn.innerHTML += ', <s>' + this.innerText + '</s>';
+		drawn.innerHTML += ', <span style="color:red"><s>' + this.innerText + '</s></span>';
 		this.addEventListener("click", clicker);
 		this.removeEventListener("click", unclicker);		
 	};
