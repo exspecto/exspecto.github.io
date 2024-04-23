@@ -81,7 +81,7 @@ window.onload = function() {
 			drawn.innerHTML += ', ' + this.innerText;	
 		}
 		
-		drawn.scroll = drawn.height;
+		drawn.scrollTop = drawn.scrollHeight;
 
 		this.removeEventListener("click", clicker);
 		this.addEventListener("click", unclicker);
