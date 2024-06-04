@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Raffle</title>
+<style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background-color: black;
+		font-family: sans-serif;
+		font-weight: bold;
+		color: white;	
+	}
+
+	#tickets {
+		gap: 1px;
+		display: flex;
+		flex: 0 0 auto;
+		flex-direction: row;
+		flex-wrap: wrap;
+		width: 100vw;
+		height: 75vh;
+	}
+
+	#drawn-desc {
+		width: 100vw;
+		height: 5vh;
+	}
+
+	#drawn {
+		flex: 1;
+		width: 100vw;
+		height: 20vh;
+		overflow: scroll;
+		scroll-behavior: auto;
+		color: green;
+	}
+
+	.number {
+		flex: 1 1 12%;
+		text-align: center;
+		align-items: center;
+		align-content: center;
+		justify-items: center;
+		justify-content: center;
+		background-color: blue;
+		color: white;
+		cursor: pointer;
+	}
+	
+	.drawnNumber {
+		flex: 1 1 12%;
+		text-align: center;
+		text-decoration: line-through;
+		align-items: center;
+		align-content: center;
+		justify-items: center;
+		justify-content: center;
+		background-color: dimgray;
+		color: white;
+		cursor: pointer;
+	}
+</style>
+<script>
+
+	const sure = function() {
+		if (confirm("Are you sure you want to reset the raffle?")) {
+			clearNumbers();
+		}
+	};
+
+	const clearNumbers = function() {
+		console.log('reloading');
+		localStorage.removeItem('drawn');
+		location.reload();
+	};
+
+</script>
+</head>
+<body>
+<div id="container">
+	<div id="tickets"></div>
+	<div id="drawn-desc"><p>Tickets Drawn (<a href="javascript:sure();">reset?</a>):</p></div>
+	<div id="drawn"></div>
+</div>
+
+<script>
+window.onload = function() {
+
+	//how many tickets?
+	var numTickets = 200;
+
+	//what should it say after the last ticket is drawn?
+	var message = "That's it! Thank you for coming and thank you for all your donations!";
+	var messageShown = 0;
+
+    const tickets = document.getElementById("tickets");
+	const drawn = document.getElementById("drawn");
+	var numbers = [];
+	var usedNumbers = [];
+
+	var numbersDrawn = localStorage.getItem("drawn");
+
+	console.log('numbersDrawn was: ' + numbersDrawn);
+
+	if (numbersDrawn && numbersDrawn.length > 0) {
+		
+		//refill the drawn div
+		drawn.innerHTML = numbersDrawn;
+
+		//remove html so we end up with numbers only
+		arr_drawn = numbersDrawn.replace(/(<([^>]+)>)/gi, "").split(",");
+
+		//trim each number string
+		for (i=0; i < arr_drawn.length; i++) {
+			arr_drawn[i] = arr_drawn[i].trim();
+		}
+
+		//determine how many times a number appears in the results (regular and undo)
+		let counts = arr_drawn.reduce((acc, cur) => {
+			acc[cur] = (acc[cur] || 0) + 1;
+			return acc;
+		}, {});
+
+		//only keep track of numbers that have been drawn (and not been withdrawn)
+		usedNumbers = Object.keys(counts).filter(key => counts[key] % 2 !== 0).map(Number);
+
+		console.log('used: ' + usedNumbers);
+
+	}
+
+    for (let i = 1; i <= numTickets; i++) {
+        let number = document.createElement("div");
+		number.innerHTML = i;		
+		number.className = usedNumbers.includes(i) ? "drawnNumber" : "number";
+		numbers.push(number);
+        tickets.appendChild(number);
+    }
+
+	const updateNumbers = function () {
+		localStorage.setItem("drawn", drawn.innerHTML);
+	};
+
+	const clicker = function() {	
+
+		this.className = "drawnNumber";
+		
+		if (drawn.innerHTML == "") {
+			drawn.innerHTML += this.innerText;	
+		} else {
+			drawn.innerHTML += ', ' + this.innerText;	
+		}
+
+		updateNumbers();
+		
+		drawn.scrollTop = drawn.scrollHeight;
+
+		this.removeEventListener("click", clicker);
+		this.addEventListener("click", unclicker);		
+
+		if (messageShown != 1 && document.getElementsByClassName("drawnNumber").length == numTickets) {
+			
+			window.requestAnimationFrame(() => 
+			{
+				window.requestAnimationFrame(()=> 
+				{
+					alert(message);
+					messageShown = 1;
+				});
+			});
+
+		}
+	};
+	
+	const unclicker = function() {
+		this.className = "number";
+		drawn.innerHTML += ', <span style="color:red"><s>' + this.innerText + '</s></span>';
+		
+		updateNumbers();
+
+		drawn.scrollTop = drawn.scrollHeight;
+
+		this.removeEventListener("click", unclicker);	
+		this.addEventListener("click", clicker);
+	};
+
+    // Event listener for each number
+    numbers.forEach(number => {
+		number.addEventListener("click", usedNumbers.includes(Number(number.innerHTML)) ? unclicker : clicker);
+    });
+
+}
+</script>
+</body>
+</html>
